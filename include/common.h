@@ -8,8 +8,8 @@
 #endif // BOX_H
 
 #define BYTE unsigned char
-#define IMG_WIDTH 1024
-#define IMG_HEIGHT 540
+#define IMG_WIDTH 1920
+#define IMG_HEIGHT 1080
 #define IMG_CHANNEL 3
 #define IMG_PAD 640
 
@@ -20,14 +20,14 @@
 #define GRID0 80
 #define GRID1 40
 #define GRID2 20
-#define OBJ_CLASS_NUM     1
+#define OBJ_CLASS_NUM     80
 #define nyolo 3   //n yolo layers;
 #define nanchor 3 //n anchor per yolo layer
 #define PROP_BOX_SIZE     (5+OBJ_CLASS_NUM)
 
 // 阈值
-#define NMS_THRESH        0.2
-#define BOX_THRESH        0.2
+#define NMS_THRESH        0.45
+#define BOX_THRESH        0.25
 
 // 每一层nbox的数量
 #define nboxes_0 GRID0*GRID0*nanchor

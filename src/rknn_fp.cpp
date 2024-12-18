@@ -117,7 +117,8 @@ rknn_fp::rknn_fp(const char *model_path, int cpuid, rknn_core_mask core_mask,
 	// Set output tensor memory
 	for (uint32_t i = 0; i < _n_output; ++i) {
 		// default output type is depend on model, this require float32 to compute top5
-		_output_attrs[i].type = RKNN_TENSOR_FLOAT32;
+		// _output_attrs[i].type = RKNN_TENSOR_FLOAT32;
+		_output_attrs[i].type = RKNN_TENSOR_INT8;
 		// set output memory and attribute
 		ret = rknn_set_io_mem(ctx, _output_mems[i], &_output_attrs[i]);
 		if (ret < 0) {
@@ -171,7 +172,7 @@ int rknn_fp::inference(unsigned char *data){
 
     // rknn outputs get
 	for(int i=0;i<_n_output;i++){
-		_output_buff[i] = (float*)_output_mems[i]->virt_addr;
+		_output_buff[i] = _output_mems[i]->virt_addr;
 	}
 
     return perf_run.run_duration;

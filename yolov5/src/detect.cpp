@@ -98,8 +98,11 @@ int Yolo::detect_process(){
 				out_zps.push_back(_output_attrs[i].zp);
 			}
 
-			post_process_fp((float *)_output_buff[0], (float *)_output_buff[1], (float *)_output_buff[2],
-		 				NET_INPUTHEIGHT, NET_INPUTWIDTH, 0, 0, resize_scale, BOX_THRESH, NMS_THRESH, &detect_result_group);
+			// post_process_fp((float *)_output_buff[0], (float *)_output_buff[1], (float *)_output_buff[2],
+		 				// NET_INPUTHEIGHT, NET_INPUTWIDTH, 0, 0, resize_scale, BOX_THRESH, NMS_THRESH, &detect_result_group);
+
+			post_process_i8((int8_t *)_output_buff[0], (int8_t *)_output_buff[1], (int8_t *)_output_buff[2],
+						 NET_INPUTHEIGHT, NET_INPUTWIDTH, 0, 0, resize_scale, BOX_THRESH, NMS_THRESH, out_zps, out_scales, &detect_result_group);
 
 			double timeAfterDetection = what_time_is_it_now();
 

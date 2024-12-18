@@ -14,22 +14,24 @@
 using namespace std;
 
 bool add_head = false;
-string PROJECT_DIR = "/home/wjp/codes/yolov5_Deepsort_rknn";
+string PROJECT_DIR = "../";
 
-
+/*
 string YOLO_MODEL_PATH = PROJECT_DIR + "/model/best.rknn";
 string SORT_MODEL_PATH = PROJECT_DIR + "/model/osnet_x0_25_market.rknn";
 
 string VIDEO_PATH = PROJECT_DIR + "/data/M0201.mp4";
 string VIDEO_SAVEPATH = PROJECT_DIR + "/data/M0201_results.mp4";
+*/
 
-/*
-string YOLO_MODEL_PATH = PROJECT_DIR + "/model/best_nofocus_relu.rknn";
+// string YOLO_MODEL_PATH = PROJECT_DIR + "/model/best_nofocus_relu.rknn";
+string YOLO_MODEL_PATH = PROJECT_DIR + "/model/yolov5s-640-640.rknn";
 string SORT_MODEL_PATH = PROJECT_DIR + "/model/osnet_x0_25_market.rknn";
 
-string VIDEO_PATH = PROJECT_DIR + "/data/DJI_0001_S_cut.mp4";
+// string VIDEO_PATH = PROJECT_DIR + "/data/DJI_0001_S_cut.mp4";
+string VIDEO_PATH = PROJECT_DIR + "/data/test.mp4";
 string VIDEO_SAVEPATH = PROJECT_DIR + "/data/results.mp4";
-*/
+
 
 
 // 各任务进行状态序号

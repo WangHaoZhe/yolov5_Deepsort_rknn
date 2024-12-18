@@ -71,6 +71,33 @@ void videoRead(const char *video_name, int cpuid)
 	调整视频尺寸
 	cpuid:		绑定到某核
 ----------------------------------------------------------*/
+int resize_rga(rga_buffer_t &src, rga_buffer_t &dst, const cv::Mat &image, cv::Mat &resized_image, const cv::Size &target_size)
+{
+	im_rect src_rect;
+	im_rect dst_rect;
+	memset(&src_rect, 0, sizeof(src_rect));
+	memset(&dst_rect, 0, sizeof(dst_rect));
+	size_t img_width = image.cols;
+	size_t img_height = image.rows;
+	if (image.type() != CV_8UC3)
+	{
+		printf("source image type is %d!\n", image.type());
+		return -1;
+	}
+	size_t target_width = target_size.width;
+	size_t target_height = target_size.height;
+	src = wrapbuffer_virtualaddr((void *)image.data, img_width, img_height, RK_FORMAT_RGB_888);
+	dst = wrapbuffer_virtualaddr((void *)resized_image.data, target_width, target_height, RK_FORMAT_RGB_888);
+	int ret = imcheck(src, dst, src_rect, dst_rect);
+	if (IM_STATUS_NOERROR != ret)
+	{
+		fprintf(stderr, "rga check error! %s", imStrError((IM_STATUS)ret));
+		return -1;
+	}
+	IM_STATUS STATUS = imresize(src, dst);
+	return 0;
+}
+
 void videoResize(int cpuid){
 	// int initialization_finished = 1;
 	rga_buffer_t src;
@@ -108,20 +135,19 @@ void videoResize(int cpuid){
 		cv::Mat img_pad;
 		resize(img, img_pad, cv::Size(640,640), 0, 0, 1);
 
+		cv::Mat resized_img(NET_INPUTHEIGHT, NET_INPUTWIDTH, CV_8UC3);
 		if (add_head){
 			// adaptive head
 		}
 		else{
 			// rga resize
-			
-			void *resize_buf = malloc(NET_INPUTHEIGHT * NET_INPUTWIDTH * NET_INPUTCHANNEL);
-			src = wrapbuffer_virtualaddr((void *)img.data, img.cols, img.rows, RK_FORMAT_RGB_888);
-			dst = wrapbuffer_virtualaddr((void *)resize_buf, NET_INPUTWIDTH, NET_INPUTHEIGHT, RK_FORMAT_RGB_888);
-			
+
+			resize_rga(src, dst, img, resized_img, cv::Size(NET_INPUTHEIGHT, NET_INPUTWIDTH));
 		}
 
 		mtxQueueInput.lock();
-		queueInput.push(input_image(idxInputImage, img_src, img_pad));
+		// queueInput.push(input_image(idxInputImage, img_src, img_pad));
+		queueInput.push(input_image(idxInputImage, img_src, resized_img));
 		mtxQueueInput.unlock();
 		idxInputImage++;
 	}
@@ -218,7 +244,7 @@ int draw_image(cv::Mat &img,detect_result_group_t detect_result_group)
         int x2 = det_result.x2;
         int y2 = det_result.y2 / IMG_WIDTH * IMG_HEIGHT;
 		int class_id = det_result.classID;
-        rectangle(img, cv::Point(x1, y1), cv::Point(x2, y2), colorArray[class_id%10], 3);
+        rectangle(img, cv::Point(x1, y1), cv::Point(x2, y2), cv::Scalar(139,0,0,255), 3);
         putText(img, text, cv::Point(x1, y1 - 12), 1, 2, cv::Scalar(0, 255, 0, 255));
     }
 	// imwrite("./display.jpg", img);

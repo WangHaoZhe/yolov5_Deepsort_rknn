@@ -26,7 +26,7 @@ public:
     rknn_tensor_attr _output_attrs[3];
     rknn_tensor_mem* _input_mems[1];
     rknn_tensor_mem* _output_mems[3];
-    float* _output_buff[3];
+    void* _output_buff[3];
 };
 
 #endif
