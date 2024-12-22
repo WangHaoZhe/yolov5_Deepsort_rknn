@@ -66,14 +66,15 @@ int main() {
     class Yolo detect2(YOLO_MODEL_PATH.c_str(), 5, RKNN_NPU_CORE_1, 1, 3);
     class DeepSort track(SORT_MODEL_PATH, 1, 512, 6, RKNN_NPU_CORE_2);
 
-    const int thread_num = 5;
+    const int thread_num = 6;
     std::array<thread, thread_num> threads;
-    videoRead(VIDEO_PATH.c_str(), 7);
+    //videoRead(VIDEO_PATH.c_str(), 7);
     // used CPU: 0, 4, 5, 6, 7
     threads = {   
                   thread(&Yolo::detect_process, &detect1),  // 类成员函数特殊写法
                   thread(&Yolo::detect_process, &detect2),
                   thread(&DeepSort::track_process, &track),
+                  thread(videoRead, VIDEO_PATH.c_str(), 1),
                   thread(videoResize, 7),
                   thread(videoWrite, VIDEO_SAVEPATH.c_str(), 0),
               };

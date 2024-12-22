@@ -8,8 +8,8 @@
 #endif // BOX_H
 
 #define BYTE unsigned char
-#define IMG_WIDTH 1920
-#define IMG_HEIGHT 1080
+#define IMG_WIDTH 720
+#define IMG_HEIGHT 576
 #define IMG_CHANNEL 3
 #define IMG_PAD 640
 

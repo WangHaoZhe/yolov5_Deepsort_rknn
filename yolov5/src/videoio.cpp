@@ -39,9 +39,15 @@ void videoRead(const char *video_name, int cpuid)
 
 	printf("Bind videoReadClient process to CPU %d\n", cpuid); 
 
-	cv::VideoCapture video;
-	if (!video.open(video_name)) {
-		cout << "Fail to open " << video_name << endl;
+	// cv::VideoCapture video;
+	// if (!video.open(video_name)) {
+	// 	cout << "Fail to open " << video_name << endl;
+	// 	return;
+	// }
+
+    cv::VideoCapture video("v4l2src device=/dev/video-camera0 io-mode=4 ! video/x-raw,format=NV12,width=720,height=576,framerate=15/1 ! appsink", cv::CAP_GSTREAMER);
+	if (!video.isOpened()) {
+		cout << "Fail to open " << endl;
 		return;
 	}
 
@@ -55,13 +61,15 @@ void videoRead(const char *video_name, int cpuid)
 	while (1) 
 	{  
 		cv::Mat img_src;
+		cv::Mat frame;
 		// 如果读不到图片 或者 bReading 不在读取状态则跳出
 		if (!video.read(img_src)) {
 			cout << "read video stream failed! Maybe to the end!" << endl;
 			video.release();
 			break;
 		}
-		imagePool.emplace_back(img_src);
+		cv::cvtColor(img_src, frame, cv::COLOR_YUV2BGR_NV12);
+		imagePool.emplace_back(frame);
 	}
 	cout << "VideoRead is over." << endl;
 	cout << "Video Total Length: " << imagePool.size() << "\n";
@@ -125,31 +133,33 @@ void videoResize(int cpuid){
 	while (1) 
 	{  
 		// 如果读不到图片 或者 bReading 不在读取状态则跳出
-		if (!bReading || idxInputImage >= video_probs.Frame_cnt) {
-			break;
+		// if (!bReading || idxInputImage >= video_probs.Frame_cnt) {
+			// break;
+		// }
+		if (idxInputImage < imagePool.size()) {
+			cv::Mat img_src = imagePool[idxInputImage];
+			cv::Mat img = img_src.clone();
+			cv::cvtColor(img_src, img, cv::COLOR_BGR2RGB);
+
+			cv::Mat img_pad;
+			resize(img, img_pad, cv::Size(640,640), 0, 0, 1);
+
+			cv::Mat resized_img(NET_INPUTHEIGHT, NET_INPUTWIDTH, CV_8UC3);
+			if (add_head){
+				// adaptive head
+			}
+			else{
+				// rga resize
+
+				resize_rga(src, dst, img, resized_img, cv::Size(NET_INPUTHEIGHT, NET_INPUTWIDTH));
+			}
+
+			mtxQueueInput.lock();
+			// queueInput.push(input_image(idxInputImage, img_src, img_pad));
+			queueInput.push(input_image(idxInputImage, img_src, resized_img));
+			mtxQueueInput.unlock();
+			idxInputImage++;
 		}
-		cv::Mat img_src = imagePool[idxInputImage];
-		cv::Mat img = img_src.clone();
-		cv::cvtColor(img_src, img, cv::COLOR_BGR2RGB);
-
-		cv::Mat img_pad;
-		resize(img, img_pad, cv::Size(640,640), 0, 0, 1);
-
-		cv::Mat resized_img(NET_INPUTHEIGHT, NET_INPUTWIDTH, CV_8UC3);
-		if (add_head){
-			// adaptive head
-		}
-		else{
-			// rga resize
-
-			resize_rga(src, dst, img, resized_img, cv::Size(NET_INPUTHEIGHT, NET_INPUTWIDTH));
-		}
-
-		mtxQueueInput.lock();
-		// queueInput.push(input_image(idxInputImage, img_src, img_pad));
-		queueInput.push(input_image(idxInputImage, img_src, resized_img));
-		mtxQueueInput.unlock();
-		idxInputImage++;
 	}
 	bReading = false;
 	cout << "VideoResize is over." << endl;
@@ -213,7 +223,9 @@ void videoWrite(const char* save_path,int cpuid)
 			queueOutput.pop();
 			mtxQueueOutput.unlock();
 			draw_image(res_pair.img, res_pair.dets);
-			vid_writer.write(res_pair.img); // Save-video
+			//vid_writer.write(res_pair.img); // Save-video
+			cv::imshow("DeepSORT", res_pair.img);
+			cv::waitKey(1);
 		}
 		// 最后一帧检测/追踪结束 bWriting置为false 此时如果queueOutput仍存在元素 继续写
 		else if(!bTracking){
