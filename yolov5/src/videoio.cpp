@@ -12,6 +12,8 @@ extern mutex mtxQueueDetOut;
 extern queue<imageout_idx> queueDetOut;        // Det output queue
 extern mutex mtxQueueOutput;
 extern queue<imageout_idx> queueOutput;  // 目标追踪输出队列
+extern mutex mtxResult;
+extern detect_result_group_t result;
 
 extern bool add_head;
 extern bool bReading;      // flag of input
@@ -222,6 +224,9 @@ void videoWrite(const char* save_path,int cpuid)
  			imageout_idx res_pair = queueOutput.front();
 			queueOutput.pop();
 			mtxQueueOutput.unlock();
+			mtxResult.lock();
+			result = res_pair.dets;
+			mtxResult.unlock();
 			draw_image(res_pair.img, res_pair.dets);
 			//vid_writer.write(res_pair.img); // Save-video
 			cv::imshow("DeepSORT", res_pair.img);

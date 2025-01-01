@@ -12,14 +12,18 @@ set(
     "${PROJECT_SOURCE_DIR}/include"
     "${PROJECT_SOURCE_DIR}/yolov5/include"
     "${PROJECT_SOURCE_DIR}/deepsort/include"
+    "${PROJECT_SOURCE_DIR}/robot/include"
     ${PROJECT_SOURCE_DIR}/3rdparty/librknn_api/include
     ${PROJECT_SOURCE_DIR}/3rdparty/rga/include
+    ${PROJECT_SOURCE_DIR}/3rdparty/i2c-tools/include
 )
 
 include_directories(${include_libs})
 
 aux_source_directory(${PROJECT_SOURCE_DIR}/yolov5/src YOLO_SRC_DIR)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src YOLO_SRC_DIR)
+aux_source_directory(${PROJECT_SOURCE_DIR}/robot/src YOLO_SRC_DIR)
+aux_source_directory(${PROJECT_SOURCE_DIR}/3rdparty/i2c-tools/lib YOLO_SRC_DIR)
 add_executable(yolov5_deepsort yolov5_deepsort.cpp ${YOLO_SRC_DIR})
 
 # 添加动态链接库

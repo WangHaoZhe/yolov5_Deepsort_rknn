@@ -10,6 +10,7 @@
 #include "deepsort.h"
 #include "mytime.h"
 #include "videoio.h"
+#include "control.h"
 
 using namespace std;
 
@@ -53,7 +54,8 @@ mutex mtxQueueDetOut;
 queue<imageout_idx> queueDetOut;  // output queue
 mutex mtxQueueOutput;
 queue<imageout_idx> queueOutput;  // output queue 目标追踪输出队列
-
+mutex mtxResult;
+detect_result_group_t result;     // result 目标结果
 
 
 void videoRead(const char *video_name, int cpuid);
@@ -66,16 +68,17 @@ int main() {
     class Yolo detect2(YOLO_MODEL_PATH.c_str(), 5, RKNN_NPU_CORE_1, 1, 3);
     class DeepSort track(SORT_MODEL_PATH, 1, 512, 6, RKNN_NPU_CORE_2);
 
-    const int thread_num = 6;
+    const int thread_num = 7;
     std::array<thread, thread_num> threads;
     //videoRead(VIDEO_PATH.c_str(), 7);
-    // used CPU: 0, 4, 5, 6, 7
+    // used CPU: 0, 1, 2, 4, 5, 6, 7 （0-3: Cortex-A55, 4-7: Cortex-A76)
     threads = {   
                   thread(&Yolo::detect_process, &detect1),  // 类成员函数特殊写法
                   thread(&Yolo::detect_process, &detect2),
                   thread(&DeepSort::track_process, &track),
                   thread(videoRead, VIDEO_PATH.c_str(), 1),
                   thread(videoResize, 7),
+                  thread(controlTask, 2),
                   thread(videoWrite, VIDEO_SAVEPATH.c_str(), 0),
               };
     for (int i = 0; i < thread_num; i++) threads[i].join();
