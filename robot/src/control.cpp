@@ -15,6 +15,7 @@ extern std::mutex mtxQueueOutput;
 extern std::queue<imageout_idx> queueOutput; // output queue 目标追踪输出队列
 extern detect_result_group_t result;
 int i2c_file;
+int id = -1;
 
 Motor CMFL(&i2c_file, 0);
 Motor CMFR(&i2c_file, 2);
@@ -42,7 +43,6 @@ int deadBand(int val, const int& min, const int& max) {
 }
 
 void controlLoop() {
-    static int id = -1;
     if (id != -1) {
         if (result.count != 0) {
             for (auto det_result: result.results) {
@@ -66,12 +66,8 @@ void controlLoop() {
             chassis.handle();
             result.count = 0;
         }
-    } else {
-        std::cout << "Enter an id" << std::endl;
-        std::cin >> id;
     }
 }
-
 
 void controlTask(int cpuid) {
     cpu_set_t mask;

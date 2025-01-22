@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Stream</title>
+</head>
+<body>
+<h1>Live Stream</h1>
+<img id="stream" alt="Video Stream" />
+
+<div id="controls" style="margin-top: 20px;">
+    <input type="text" id="inputField" placeholder="Enter a number">
+    <button onclick="sendVariable()">Submit</button>
+    <p id="response"></p>
+</div>
+
+<script>
+    const img = document.getElementById("stream");
+    const socket = new WebSocket(`ws://${location.hostname}:9002`);
+
+    function sendVariable() {
+        const input = document.getElementById("inputField").value;
+
+        if (input.trim() === "") {
+            document.getElementById("response").innerHTML = '<span style="color:red;">Error: Input cannot be empty.</span>';
+            return;
+        }
+
+        const ws = new WebSocket("ws://" + location.hostname + ":9002"); // WebSocket URL
+
+        ws.onopen = () => {
+            ws.send(input);
+            console.log("Sent to server:", input);
+        };
+
+        ws.onmessage = (event) => {
+            document.getElementById("response").innerText = "Server Response: " + event.data;
+            ws.close();
+        };
+
+        ws.onerror = (err) => {
+            console.error("WebSocket Error:", err);
+            document.getElementById("response").innerHTML = '<span style="color:red;">Error communicating with server.</span>';
+        };
+    }
+
+    socket.binaryType = "arraybuffer";
+    socket.onmessage = (event) => {
+        const blob = new Blob([event.data], { type: "image/jpeg" });
+        img.src = URL.createObjectURL(blob);
+    };
+
+    socket.onopen = () => {
+        console.log("Connected to WebSocket server!");
+    };
+
+    socket.onclose = () => {
+        console.log("Disconnected from WebSocket server.");
+    };
+</script>
+</body>
+</html>

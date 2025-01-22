@@ -11,6 +11,7 @@
 #include "mytime.h"
 #include "videoio.h"
 #include "control.h"
+#include "web_io.h"
 
 using namespace std;
 
@@ -79,7 +80,8 @@ int main() {
                   thread(videoRead, VIDEO_PATH.c_str(), 1),
                   thread(videoResize, 7),
                   thread(controlTask, 2),
-                  thread(videoWrite, VIDEO_SAVEPATH.c_str(), 0),
+                  // thread(videoWrite, VIDEO_SAVEPATH.c_str(), 0), // local display
+                  thread(webStreamer, 0), // web display
               };
     for (int i = 0; i < thread_num; i++) threads[i].join();
     printf("Video detection mean cost time(ms): %f\n", (end_time-start_time) / video_probs.Frame_cnt);

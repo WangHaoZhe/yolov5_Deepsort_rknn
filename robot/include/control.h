@@ -7,4 +7,6 @@ void controlLoop();
 
 void controlTask(int cpuid);
 
+extern int id;
+
 #endif //CONTROL_H
