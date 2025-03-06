@@ -55,9 +55,9 @@ void controlLoop() {
 
                     std::cout << "Target position: " << x << ", " << h << std::endl;
 
-                    x = deadBand(x, -100, 100);
-                    h -= 320;
-                    h = deadBand(h, -50, 50);
+                    x = deadBand(x, -50, 50);
+                    h -= 400;
+                    h = deadBand(h, -20, 20);
                     chassis.follow(x, h);
                     break;
                 }
@@ -66,6 +66,8 @@ void controlLoop() {
             chassis.handle();
             result.count = 0;
         }
+    } else {
+        chassis.follow(0, 0);
     }
 }
 
