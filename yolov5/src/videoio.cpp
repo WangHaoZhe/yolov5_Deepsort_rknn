@@ -47,7 +47,9 @@ void videoRead(const char *video_name, int cpuid)
 	// 	return;
 	// }
 
-    cv::VideoCapture video("v4l2src device=/dev/video-camera0 io-mode=4 ! video/x-raw,format=NV12,width=720,height=576,framerate=15/1 ! appsink", cv::CAP_GSTREAMER);
+    cv::VideoCapture video("v4l2src device=/dev/video20 io-mode=2 ! "
+						   "image/jpeg,width=800,height=600,framerate=15/1 ! "
+		                   "jpegdec ! videoconvert ! video/x-raw,format=NV12 ! appsink", cv::CAP_GSTREAMER);
 	if (!video.isOpened()) {
 		cout << "Fail to open " << endl;
 		return;
