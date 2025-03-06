@@ -414,6 +414,10 @@ int post_process_i8(int8_t *input0, int8_t *input1, int8_t *input2, int model_in
         detbox.y2 = (int)((clamp(y2, 0, model_in_h)  - h_offset) / resize_scale);
         detbox.confidence = boxesScore[i];
         detbox.classID = id;
+        if (id != 1)  // Detect "person" category only
+        {
+            continue;
+        }
         char *label = labels[id];
         strncpy(detbox.name, label, OBJ_NAME_MAX_SIZE);
         group->results.push_back(detbox);
